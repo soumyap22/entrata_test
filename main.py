@@ -18,6 +18,7 @@ def browser():
 
     # Initialize Chrome WebDriver with the service and options
     driver = webdriver.Chrome(service=webdriver_service, options=options)
+    
     yield driver
     
     driver.quit()  # Teardown - close the browser
@@ -62,27 +63,28 @@ def test_resident_portal_schedule_demo(browser):
     schedule_demo = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="gatsby-focus-wrapper"]/div/div[2]/div[1]/div/div[1]/div[1]/div/div[3]/a')))
     schedule_demo.click()
 
-    WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="mktoForm_1132"]/div[11]/span/button')))
     # Find Form Fields
-    contact_form_first_name = browser.find_element(By.ID, "FirstName")
-    contact_form_last_name = browser.find_element(By.ID, "LastName")
-    contact_form_email = browser.find_element(By.ID, "Email")
-    contact_form_company = browser.find_element(By.ID, "Company")
-    contact_form_phone = browser.find_element(By.ID, "Phone")
-    contact_form_unit = browser.find_element(By.ID, "Unit_Count__c")
-    contact_form_job = browser.find_element(By.ID, "Title")
+    contact_form_first_name = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "FirstName")))
+    contact_form_last_name = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "LastName")))
+    contact_form_email = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "Email")))
+    contact_form_company = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "Company")))
+    contact_form_phone = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "Phone")))
+    contact_form_unit = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "Unit_Count__c")))
+    contact_form_job = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, "Title")))
 
     # Fill in the contact form fields
     contact_form_first_name.send_keys("Soumya Pandey")
     contact_form_last_name.send_keys("This is a test message.")
     contact_form_email.send_keys("pandeysoumya22@gmail.com")
-    
+    contact_form_company.send_keys("Test")
+
     # Submit the contact form
-    submit_button = browser.find_element(By.XPATH, '//*[@id="mktoForm_1132"]/div[11]/span/button')
+    submit_button = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="mktoForm_1132"]/div[11]/span/button')))
     submit_button.click()
 
+    # Wait for the specified class to be added to the element
+    WebDriverWait(browser, 5).until( EC.presence_of_element_located((By.XPATH, f"//*[contains(@class, 'mktoInvalid')]")))
     # Assert that the input element has the expected class asserting invalid fields
-    assert "mktoInvalid" in contact_form_company.get_attribute("class"), "Error Class Not Found"
     assert "mktoInvalid" in contact_form_phone.get_attribute("class"), "Error Class Not Found"
     assert "mktoInvalid" in contact_form_unit.get_attribute("class"), "Error Class Not Found"
     assert "mktoInvalid" in contact_form_job.get_attribute("class"), "Error Class Not Found"
@@ -92,23 +94,23 @@ def test_resident_portal_schedule_demo(browser):
 def test_property_manager_login(browser):
     # Go back to previous page
     browser.back()
+    browser.refresh()
     
     # Find the login button
-    login_in_button = browser.find_element(By.XPATH, '//*[@id="gatsby-focus-wrapper"]/div/div[1]/div/div/div[3]/a[2]') 
+    login_in_button = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="gatsby-focus-wrapper"]/div/div[1]/div/div/div[3]/a[2]')))
     login_in_button.click()
 
     property_manager_login = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="gatsby-focus-wrapper"]/div/div[2]/div/div/div/div[1]/div/div[3]/a[1]')))
     property_manager_login.click()
-    
-    property_manager_sign_in = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="fsm_request_demo"]/ul/li[3]/button')))
 
     # Enter UserName
-    contact_form_first_name = browser.find_element(By.XPATH, '//*[@id="entrata-username"]')
+    contact_form_first_name = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="entrata-username"]')))
     contact_form_first_name.send_keys("pandeysoumya22")
 
+    property_manager_sign_in = WebDriverWait(browser, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="fsm_request_demo"]/ul/li[3]/button')))
     property_manager_sign_in.click()
 
-    error_message = browser.find_element(By.ID, "entrata-login-error")
+    error_message = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.ID, 'entrata-login-error')))
     error_text = error_message.text
 
     expected_text = "Please enter username and password"
